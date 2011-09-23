@@ -67,11 +67,15 @@ public class XBeeAPITestApplication implements ManagedRunnable {
 			if (res.getApiId() == ApiId.RX_16_RESPONSE){
 				RxResponse pkt = (RxResponse) res;
 				String data = ByteUtils.toString(pkt.getData());
+				data = data.replaceAll("\n", "");
+				data = data.replaceAll("\r", "");
 				//dlog("Incoming data "+pkt.getSourceAddress().getAddress()[1]+": "+data);
 				if (pkt.getSourceAddress().getAddress()[1] == 1){
 					//Data from the Sonar mote
-					if (data.charAt(0) == 'R'){ 
-						ilog("Range: "+data.substring(1)+"(cm)");
+					if (data.charAt(0) == 'R'){
+						//Remove out-of-range-samples
+						if (!data.contains("765"))
+							ilog("Range: "+data.substring(1)+" (cm)");
 					} else {
 						dlog("Sonar data: "+data);
 					}
@@ -106,7 +110,8 @@ public class XBeeAPITestApplication implements ManagedRunnable {
 				//If incoming data is an IO packet
 				//Assume this was from a Motion module
 				RxResponseIoSample pkt = (RxResponseIoSample) res;
-				ilog("Motion detected: "+ByteUtils.toBase16(pkt.getSamples()[0].getDioMsb())+","+ByteUtils.toBase16(pkt.getSamples()[0].getDioLsb()));
+				//ilog("Motion detected!: "+ByteUtils.toBase16(pkt.getSamples()[0].getDioMsb())+","+ByteUtils.toBase16(pkt.getSamples()[0].getDioLsb()));
+				ilog("Motion detected!");
 			}
 		}
 		
