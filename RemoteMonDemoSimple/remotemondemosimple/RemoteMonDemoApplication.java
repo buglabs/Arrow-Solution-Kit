@@ -1,4 +1,4 @@
-package xbeeapitest;
+package remotemondemosimple;
 
 import java.util.Map;
 import java.util.Properties;
@@ -28,7 +28,7 @@ import com.rapplogic.xbee.util.ByteUtils;
  * By default, the application will only be started when all service dependencies are fulfilled.  For 
  * finer grained service binding logic, see ServiceTrackerHelper.openServiceTracker(BundleContext context, String[] services, Filter filter, ServiceTrackerCustomizer customizer)
  */
-public class XBeeAPITestApplication implements ManagedRunnable {
+public class RemoteMonDemoApplication implements ManagedRunnable {
 	private LogService ls;
 	private XBee xb;
 

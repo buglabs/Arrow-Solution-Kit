@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: XBeeAPITest
-Bundle-Activator: xbeeapitest.Activator
-Bundle-SymbolicName: XBeeAPITest
+Bundle-Name: RemoteMonDemoSimple
+Bundle-Activator: remotemondemosimple.Activator
+Bundle-SymbolicName: RemoteMonDemoSimple
 Bundle-Version: 1.0.0
 Bundle-Vendor: terg
 Bug-Bundle-Type: Application
