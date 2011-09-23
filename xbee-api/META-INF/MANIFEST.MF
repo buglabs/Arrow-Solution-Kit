@@ -1,0 +1,44 @@
+Manifest-Version: 1.0
+Export-Package: com.rapplogic.xbee;uses:="org.apache.log4j,com.rapplogic.xbee.api,gnu.io",
+ com.rapplogic.xbee.api;
+  uses:="com.rapplogic.xbee.util,
+   org.apache.log4j,
+   com.rapplogic.xbee,
+   com.rapplogic.xbee.api.zigbee,
+   com.rapplogic.xbee.api.wpan",
+ com.rapplogic.xbee.api.wpan;uses:="com.rapplogic.xbee.util,org.apache.log4j,com.rapplogic.xbee.api",
+ com.rapplogic.xbee.api.zigbee;uses:="com.rapplogic.xbee.api,org.apache.log4j,com.rapplogic.xbee.util",
+ com.rapplogic.xbee.examples;uses:="org.apache.log4j,com.rapplogic.xbee.api",
+ com.rapplogic.xbee.examples.wpan;
+  uses:="org.apache.log4j,
+   com.rapplogic.xbee.api,
+   com.rapplogic.xbee.api.wpan,
+   com.rapplogic.xbee.util",
+ com.rapplogic.xbee.examples.zigbee;
+  uses:="org.apache.log4j,
+   com.rapplogic.xbee.api,
+   com.rapplogic.xbee.api.zigbee,
+   com.rapplogic.xbee.util",
+ com.rapplogic.xbee.test;uses:="org.apache.log4j,com.rapplogic.xbee.api",
+ com.rapplogic.xbee.util;uses:="com.rapplogic.xbee.api"
+Ant-Version: Apache Ant 1.7.1
+Bundle-Version: 0
+Tool: Bnd-<unknown version>
+Bnd-LastModified: 1316639756315
+Bundle-Name: xbee-api-0.9
+Bundle-ManifestVersion: 2
+Created-By: 1.6.0_20 (Sun Microsystems Inc.)
+Import-Package: com.rapplogic.xbee;resolution:=optional,
+ com.rapplogic.xbee.api;resolution:=optional,
+ com.rapplogic.xbee.api.wpan;resolution:=optional,
+ com.rapplogic.xbee.api.zigbee;resolution:=optional,
+ com.rapplogic.xbee.examples;resolution:=optional,
+ com.rapplogic.xbee.examples.wpan;resolution:=optional,
+ com.rapplogic.xbee.examples.zigbee;resolution:=optional,
+ com.rapplogic.xbee.test;resolution:=optional,
+ com.rapplogic.xbee.util;resolution:=optional,
+ gnu.io;resolution:=optional,
+ org.apache.log4j;resolution:=optional
+Bundle-SymbolicName: xbee-api-0.9
+Originally-Created-By: 17.1-b03-307 (Apple Inc.)
+
