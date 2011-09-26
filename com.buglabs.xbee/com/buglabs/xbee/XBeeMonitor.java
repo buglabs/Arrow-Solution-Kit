@@ -47,13 +47,23 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 	
 	public XBee xb;
 	public boolean connected = false;
+	public int[] PANID = new int[2];
+	public int channel = 0;
+	public int[] address = new int[2];
+	public int[] serial = new int[8];
 	
 	@Override
 	public void processResponse(XBeeResponse res) {
+		Map<String,Object> ret = parseResponse(res);
+		if (ret != null)
+			whiteboardNotify(ret);
+	}
+	
+	private Map<String,Object> parseResponse(XBeeResponse res){
 		//Shortcut - AT_Responses should only be synchronous
-		//Also, ATMY is used as a ping, so we need t
+		//Also, ATMY is used as a ping, so we need to filter it out
 		if (res.getApiId() == ApiId.AT_RESPONSE)
-			return;
+			return null;
 		//First, check this is a packet that contains a remote address
 		boolean found = false;
 		for (int i=0;i<VALID_APIID.length;i++)
@@ -63,30 +73,30 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 		//TODO - can we support other packet types?
 		if (!found){
 			dlog("Unsupported pkt type recieved: "+res.getApiId().getValue());
-			return;
+			return null;
 		}
 		RxBaseResponse pkt = (RxBaseResponse)res;
+		Map<String,Object> ret = null;
 		if (protocols.containsKey(pkt.getSourceAddress())){
-			Map<String,Object> ret;
 			ret = protocols.get(pkt.getSourceAddress()).parse(res);
 			//ret will be null for unparseable data from a protocol
-			//so we shouldn't report unparseable data.
+			//so we shouldn't report unparseable data.	
 			if (ret != null){
 				ret.put("protocol", protocols.get(pkt.getSourceAddress()));
 				ret.put("address", pkt.getSourceAddress().getAddress());
-				whiteboardNotify(ret);
 			} 	
+			return ret;
 		//If we don't know where the packet came from, we can't parse it!
 		//Send the raw (but still unescaped) packet bytes.
 		} else {
 			if (tracker.size() > 0){
-				Map<String,Object> ret = new HashMap<String,Object>();
+				ret = new HashMap<String,Object>();
 				ret.put("raw", pkt.getProcessedPacketBytes());
 				ret.put("address", pkt.getSourceAddress().getAddress());
-				whiteboardNotify(ret);
 			} else {
 				dlog("data(no consumers):"+ByteUtils.toString(pkt.getProcessedPacketBytes()));
 			}
+			return ret;
 		}
 	}
 	
@@ -124,6 +134,38 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 	}
 	
 	@Override
+	public Map<String, Object> getResponse() {
+		XBeeResponse res;
+		try {
+			res = xb.getResponse(REQUEST_TIMEOUT);
+		} catch (XBeeTimeoutException e) {
+			return null;
+		} catch (XBeeException e) {
+			return null;
+		}
+		if (res == null)
+			return null;
+		return parseResponse(res);
+	}
+
+	@Override
+	public Map<String, Object> getResponse(int[] addr) {
+		long start = System.currentTimeMillis();
+		Map<String,Object> ret = null;
+		getpacket: while ((System.currentTimeMillis()-start) < REQUEST_TIMEOUT){
+			ret = getResponse();
+			int[] recv_array = (int[])ret.get("address");
+			for (int i=0;i<addr.length;i++){
+				if (addr[i] != recv_array[i]){
+					continue getpacket;
+				}
+			}
+			break getpacket;
+		}
+		return ret;
+	}
+	
+	@Override
 	public void run(Map<Object, Object> services) {
 		// TODO Auto-generated method stub
 		ls = (LogService) services.get(LogService.class.getName());
@@ -140,6 +182,10 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 		dlog("Monitor thread start");
 		xb = new XBee();
 		running: while(running){
+			PANID = new int[2];
+			channel = 0;
+			address = new int[2];
+			serial = new int[8];
 			try {
 				//Specify system property to force RXTX to take the devnode
 				System.setProperty("gnu.io.rxtx.SerialPorts", devnode);
@@ -153,23 +199,35 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 				continue running;
 			}
 			connected = true;
+			//get local data:
+			try {
+				PANID = getAtResult("ID");
+				channel = getAtResult("CH")[0];
+				address = getAtResult("MY");
+				int[] serialtemp = getAtResult("SL");
+				for (int i=0;i<4;i++)
+					serial[i] = serialtemp[i];
+				serialtemp = getAtResult("SH");
+				for (int i=0;i<4;i++)
+					serial[i+4] = serialtemp[i];
+			} catch (XBeeTimeoutException e2) {
+			} catch (XBeeException e2) {}
+			ilog("Connected XBee: PAN="+ByteUtils.toBase16(PANID)
+					+" CHANNEL="+ByteUtils.toBase16(channel)
+					+" address="+ByteUtils.toBase16(address)
+					+" serial="+ByteUtils.toBase16(serial));
 			//allows processResponse to receive responses
 			xb.addPacketListener(this);
 			connected: while (connected){
-				AtCommandResponse res = null;
 				try {
 					//Send a local ATMY command - being used as a local "ping"
-					res = (AtCommandResponse) xb.sendSynchronous(new AtCommand("MY"), REQUEST_TIMEOUT);
+					getAtResult("MY");
 					//If local XBee is gone, reconnect
 				} catch (XBeeTimeoutException e) {
 					dlog("Timeout with local XBee");
 					break connected;
 				} catch (XBeeException e) {
 					dlog("Error with local XBee, reconnecting");
-					break connected;
-				}
-				if (!res.isOk()){
-					elog("Cannot determine local address, retrying");
 					break connected;
 				}
 				try { t.sleep(LOCAL_POLL_DELAY); } 
@@ -183,6 +241,13 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 		//Close port before closing thread
 		dlog("Monitor thread stop");
 		xb.close();
+	}
+	
+	public int[] getAtResult(String command) throws XBeeTimeoutException, XBeeException{
+		AtCommandResponse res = (AtCommandResponse) xb.sendSynchronous(new AtCommand(command), REQUEST_TIMEOUT);
+		if (!res.isOk())
+			throw new XBeeException();
+		return res.getValue();
 	}
 	
 	@Override

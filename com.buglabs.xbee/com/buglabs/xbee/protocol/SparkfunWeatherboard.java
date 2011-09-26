@@ -12,26 +12,11 @@ import com.rapplogic.xbee.api.XBeeResponse;
 import com.rapplogic.xbee.api.wpan.RxResponse;
 import com.rapplogic.xbee.util.ByteUtils;
 
-public class SparkfunWeatherboard implements XBeeProtocol {
-	private Map<String, Object> last = null;
-	private XBeeAddress addr;
+public class SparkfunWeatherboard extends BaseXBeeProtocol {
 
-	public SparkfunWeatherboard(int[] address){
-		if (address.length > 2)
-			addr = new XBeeAddress64(address);
-		else
-			addr = new XBeeAddress16(address);
-	}
-	
-	public SparkfunWeatherboard(int[] address, XBeeController con){
-		this(address);
-		con.addListener(this);
-	}
-	
-		
-	@Override
-	public Map<String, Object> lastSample() {
-		return last;
+	public SparkfunWeatherboard(int[] address, XBeeController con) {
+		super(address, con);
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -59,11 +44,6 @@ public class SparkfunWeatherboard implements XBeeProtocol {
 			last = ret;
 		} 
 		return ret;
-	}
-
-	@Override
-	public XBeeAddress getAddr() {
-		return addr;
 	}
 
 	@Override

@@ -7,6 +7,7 @@ import com.buglabs.xbee.XBeeCallback;
 import com.buglabs.xbee.XBeeController;
 import com.buglabs.xbee.protocol.MaxbotixRangefinder;
 import com.buglabs.xbee.protocol.PIRMotion;
+import com.buglabs.xbee.protocol.SerialDevice;
 import com.buglabs.xbee.protocol.SparkfunWeatherboard;
 import com.buglabs.xbee.protocol.XBeeProtocol;
 
@@ -37,6 +38,11 @@ public class RemoteMonDemoAPIApplication implements ManagedRunnable, XBeeCallbac
 	
 	@Override
 	public void dataRecieved(Map<String, Object> data) {
+		/*if ((XBeeProtocol)data.get("protocol") == motion){
+			ilog("Motion detected!");
+			ilog((String)xbc.getResponse(RANGE_ADDRESS).get("Range"));
+			ilog((String)xbc.getResponse(WEATHER_ADDRESS).get("Temperature"));
+		}*/
 		if ((XBeeProtocol)data.get("protocol") == weather){
 			ilog("Weather data from "+Integer.toHexString(((int[])data.get("address"))[1]));
 			ilog("Temperature: "+data.get("Temperature"));
@@ -45,7 +51,7 @@ public class RemoteMonDemoAPIApplication implements ManagedRunnable, XBeeCallbac
 			ilog("Pressure: "+data.get("Pressure"));
 			ilog("Light: "+data.get("Light"));
 		} else if ((XBeeProtocol)data.get("protocol") == range){
-			String range = (String) data.get("range");
+			String range = (String) data.get("Range");
 			ilog("Range from "+Integer.toHexString(((int[])data.get("address"))[1])
 					+": "+range);
 		} else if ((XBeeProtocol)data.get("protocol") == motion){
