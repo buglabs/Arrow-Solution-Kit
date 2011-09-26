@@ -69,21 +69,24 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 		if (protocols.containsKey(pkt.getSourceAddress())){
 			Map<String,Object> ret;
 			ret = protocols.get(pkt.getSourceAddress()).parse(res);
-			ret.put("protocol", protocols.get(pkt.getSourceAddress()));
-			ret.put("address", pkt.getSourceAddress().getAddress());
-			ret.put("raw", pkt.getProcessedPacketBytes());
-			//TODO - implement a whiteboard callback
-			dlog("Got a packet belonging to "+protocols.get(pkt.getSourceAddress()).toString());
-			whiteboardNotify(ret);
-			//For now, just printing keyz
-//			for (Map.Entry<String, Object> entry : ret.entrySet())
-//			{
-//			    ilog(entry.getKey()+": "+entry.getValue());
-//			}
+			//ret will be null for unparseable data from a protocol
+			//so we shouldn't report unparseable data.
+			if (ret != null){
+				ret.put("protocol", protocols.get(pkt.getSourceAddress()));
+				ret.put("address", pkt.getSourceAddress().getAddress());
+				whiteboardNotify(ret);
+			} 	
 		//If we don't know where the packet came from, we can't parse it!
+		//Send the raw (but still unescaped) packet bytes.
 		} else {
-			dlog("Unknown sender ("+ByteUtils.toBase16(pkt.getSourceAddress().getAddress())
-					+") "+ByteUtils.toString(pkt.getProcessedPacketBytes()));
+			if (tracker.size() > 0){
+				Map<String,Object> ret = new HashMap<String,Object>();
+				ret.put("raw", pkt.getProcessedPacketBytes());
+				ret.put("address", pkt.getSourceAddress().getAddress());
+				whiteboardNotify(ret);
+			} else {
+				dlog("data(no consumers):"+ByteUtils.toString(pkt.getProcessedPacketBytes()));
+			}
 		}
 	}
 	
