@@ -1,0 +1,11 @@
+Arrow Solution Kit:
+This reposistory should eventually house all of the code relating to the Arrow solution kits.
+
+Remote Monitoring:
+The following bundles are used by remote monitoring:
+-xbee-api: the JNI-ified and ECLIPSE-ified XBeeAPI
+-log4jlib_osgi: the JNI-ified log4jlib bundle (taken from bugnet), requred by xbee-api
+-RemoteMonDemoSimple: A simple version of the demo code, not using com.buglabs.xbee
+-com.buglabs.xbee: a daemon and wrapper for xbee-api, abstracting away the XBee-related datastructures
+-RemoteMonDemoAPI: the functionality of RemoteMonDemoSimple, but using com.buglabs.xbee
+
