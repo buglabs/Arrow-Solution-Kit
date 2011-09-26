@@ -58,4 +58,16 @@ public class SparkfunWeatherboard implements XBeeProtocol {
 		return addr;
 	}
 
+	@Override
+	public String toString(Map<String, Object> data) {
+		String ret = "";
+		ret += "Weather data from "+Integer.toHexString(((int[])data.get("address"))[1])+"\r\n";
+		ret += "Temperature: "+data.get("Temperature")+"\r\n";
+		ret += "Humidity: "+data.get("Humidity")+"\r\n";
+		ret += "Dewpoint: "+data.get("Dewpoint")+"\r\n";
+		ret += "Pressure: "+data.get("Pressure")+"\r\n";
+		ret += "Light: "+data.get("Light")+"\r\n";
+		return ret;
+	}
+
 }

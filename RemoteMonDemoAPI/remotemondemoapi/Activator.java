@@ -34,7 +34,7 @@ public class Activator implements BundleActivator {
 	 */
 	public void start(BundleContext context) throws Exception {
 		//Begin tracking services, and when all services are available, create thread and call ManagedRunnable.run().
-		serviceTracker = ServiceTrackerHelper.openServiceTracker(context, services, new RemoteMonDemoAPIApplication());
+		serviceTracker = ServiceTrackerHelper.openServiceTracker(context, services, new RemoteMonDemoAPIApplication(context));
 
 	}
 

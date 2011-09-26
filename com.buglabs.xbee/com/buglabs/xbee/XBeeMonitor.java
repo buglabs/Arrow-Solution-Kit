@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
+import org.osgi.util.tracker.ServiceTracker;
 
 import com.buglabs.application.ServiceTrackerHelper.ManagedRunnable;
 import com.buglabs.xbee.protocol.XBeeProtocol;
@@ -42,6 +43,7 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 	private int baud = 9600;
 	private Map<XBeeAddress, XBeeProtocol> protocols;
 	private BundleContext _context;
+	private ServiceTracker tracker;
 	
 	public XBee xb;
 	public boolean connected = false;
@@ -67,16 +69,30 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 		if (protocols.containsKey(pkt.getSourceAddress())){
 			Map<String,Object> ret;
 			ret = protocols.get(pkt.getSourceAddress()).parse(res);
+			ret.put("protocol", protocols.get(pkt.getSourceAddress()));
+			ret.put("address", pkt.getSourceAddress().getAddress());
+			ret.put("raw", pkt.getProcessedPacketBytes());
 			//TODO - implement a whiteboard callback
+			dlog("Got a packet belonging to "+protocols.get(pkt.getSourceAddress()).toString());
+			whiteboardNotify(ret);
 			//For now, just printing keyz
-			for (Map.Entry<String, Object> entry : ret.entrySet())
-			{
-			    ilog(entry.getKey()+": "+entry.getValue());
-			}
+//			for (Map.Entry<String, Object> entry : ret.entrySet())
+//			{
+//			    ilog(entry.getKey()+": "+entry.getValue());
+//			}
 		//If we don't know where the packet came from, we can't parse it!
 		} else {
 			dlog("Unknown sender ("+ByteUtils.toBase16(pkt.getSourceAddress().getAddress())
 					+") "+ByteUtils.toString(pkt.getProcessedPacketBytes()));
+		}
+	}
+	
+	private void whiteboardNotify(Map<String,Object> data){
+		Object[] services = tracker.getServices();
+		if (services == null)
+			return;
+		for (Object s:services){
+			((XBeeCallback) s).dataRecieved(data);
 		}
 	}
 	
@@ -112,6 +128,8 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 		t = new Thread(this, "XBee Monitor");
 		t.start();
 		_context.registerService(XBeeController.class.getName(), this, null);
+		tracker = new ServiceTracker(_context, XBeeCallback.class.getName(),null);
+		tracker.open();
 	}
 
 	@Override
@@ -168,6 +186,7 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 	public void shutdown() {
 		running = false;
 		t.interrupt();
+		tracker.close();
 	}
 		
 	//Wrappers for the log service (to standardize logged messages)
