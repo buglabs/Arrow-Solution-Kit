@@ -57,5 +57,29 @@ public class SparkfunWeatherboard extends BaseXBeeProtocol {
 		ret += "Light: "+data.get("Light")+"\r\n";
 		return ret;
 	}
+	
+	@Override
+	public boolean parseable(XBeeResponse res){
+		if (res.getApiId() != ApiId.RX_16_RESPONSE)
+			return false;
+		RxResponse pkt = (RxResponse) res;
+		String data = ByteUtils.toString(pkt.getData());
+		data = data.replaceAll("\n", "");
+		data = data.replaceAll("\r", "");
+		if (data.charAt(0) != '$')
+			return false;
+		data = data.substring(2,data.length()-2);
+		String[] values = data.split(",");
+		if (values.length != 10)
+			return false;
+		if (values[9] != "*")
+			return false;
+		int[] floats = {0,2,3,4,5,7,8};
+		for (int idx:floats){
+			if (!values[idx].contains("."))
+				return false;
+		}
+		return true;
+	}
 
 }

@@ -31,5 +31,12 @@ public class PIRMotion extends BaseXBeeProtocol {
 	public String toString(Map<String, Object> data) {
 		return "Motion detected from "+Integer.toHexString(((int[])data.get("address"))[1]);
 	}
+	
+	@Override
+	public boolean parseable(XBeeResponse res){
+		if (res.getApiId() == ApiId.RX_16_IO_RESPONSE)
+			return true;
+		return false;
+	}
 
 }

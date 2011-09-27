@@ -10,4 +10,5 @@ public interface XBeeProtocol {
 	public Map<String, Object> lastSample();
 	public XBeeAddress getAddr();
 	public String toString(Map<String, Object> data);
+	public boolean parseable(XBeeResponse res);
 };

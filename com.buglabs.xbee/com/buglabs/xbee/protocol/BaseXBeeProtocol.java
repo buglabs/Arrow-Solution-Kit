@@ -45,5 +45,9 @@ public class BaseXBeeProtocol implements XBeeProtocol {
 	public String toString(){
 		return toString(last);
 	}
+	@Override
+	public boolean parseable(XBeeResponse res) {
+		return false;
+	}
 
 }

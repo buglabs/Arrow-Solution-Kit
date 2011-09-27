@@ -53,5 +53,12 @@ public class SerialDevice extends BaseXBeeProtocol {
 			con.getXBee().sendAsynchronous(request);
 		} catch (XBeeException e) {}
 	}
+	
+	@Override
+	public boolean parseable(XBeeResponse res){
+		if (!((res.getApiId() == ApiId.RX_16_RESPONSE)||(res.getApiId() == ApiId.RX_64_RESPONSE)))
+			return false;
+		return true;
+	}
 
 }

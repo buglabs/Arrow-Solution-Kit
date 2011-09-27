@@ -43,5 +43,18 @@ public class MaxbotixRangefinder extends BaseXBeeProtocol {
 					+"): "+data.get("Range");
 		return ret;
 	}
+	
+	@Override
+	public boolean parseable(XBeeResponse res){
+		if (res.getApiId() != ApiId.RX_16_RESPONSE)
+			return false;
+		RxResponse pkt = (RxResponse) res;
+		String data = ByteUtils.toString(pkt.getData());
+		data = data.replaceAll("\n", "");
+		data = data.replaceAll("\r", "");
+		if ((data.charAt(0) == 'R')&&(data.length() == 4))
+			return true;
+		return false;
+	}
 
 }
