@@ -122,6 +122,7 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 			//so we shouldn't report unparseable data.	
 			if (ret != null){
 				ret.put("protocol", protocols.get(pkt.getSourceAddress()));
+				ret.put("class", protocols.get(pkt.getSourceAddress()).getClass());
 				ret.put("address", pkt.getSourceAddress().getAddress());
 			} 	
 			return ret;
@@ -135,6 +136,7 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 				if (ret != null){
 					dlog("prediction success: "+protocols.get(pkt.getSourceAddress()).getClass().getName());
 					ret.put("protocol", protocols.get(pkt.getSourceAddress()));
+					ret.put("class", protocols.get(pkt.getSourceAddress()).getClass());
 					ret.put("address", pkt.getSourceAddress().getAddress());
 				}
 				return ret;
@@ -217,9 +219,12 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 	
 	@Override
 	public void removeAll(Class proto) {
-		expectedProtocols.remove(proto);
+		dlog("removing "+proto.getName()+" from list...");
+		boolean success = expectedProtocols.remove(proto);
+		dlog("..."+success);
 		for (Map.Entry<XBeeAddress, XBeeProtocol> entry : protocols.entrySet()){
 			if (entry.getValue().getClass() == proto){
+				dlog("removing protocol at "+ByteUtils.toBase16(entry.getKey().getAddress()));
 				protocols.remove(entry.getKey());
 			}
 		}

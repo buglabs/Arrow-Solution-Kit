@@ -13,6 +13,8 @@ import com.rapplogic.xbee.api.wpan.RxResponse;
 import com.rapplogic.xbee.util.ByteUtils;
 
 public class MaxbotixRangefinder extends BaseXBeeProtocol {
+	public MaxbotixRangefinder(){
+	}
 
 	public MaxbotixRangefinder(int[] address, XBeeController con) {
 		super(address, con);

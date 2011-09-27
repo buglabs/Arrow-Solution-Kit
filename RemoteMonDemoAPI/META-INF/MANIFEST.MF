@@ -7,7 +7,6 @@ Bundle-Version: 1.0.0
 Bundle-Vendor: theterg
 Bundle-Description: The Remote Monitoring demo - using com.buglabs.xbee
 Bug-Bundle-Type: Application
-BUG-API-Version: 2.0.2
 Import-Package: com.buglabs.application,
  com.buglabs.util,
  com.buglabs.xbee,
@@ -15,3 +14,4 @@ Import-Package: com.buglabs.application,
  org.osgi.framework,
  org.osgi.service.log,
  org.osgi.util.tracker
+BUG-API-Version: 2.0.2

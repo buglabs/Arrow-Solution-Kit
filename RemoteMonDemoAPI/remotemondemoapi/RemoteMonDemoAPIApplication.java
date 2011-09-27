@@ -38,23 +38,18 @@ public class RemoteMonDemoAPIApplication implements ManagedRunnable, XBeeCallbac
 	
 	@Override
 	public void dataRecieved(Map<String, Object> data) {
-		/*if ((XBeeProtocol)data.get("protocol") == motion){
-			ilog("Motion detected!");
-			ilog((String)xbc.getResponse(RANGE_ADDRESS).get("Range"));
-			ilog((String)xbc.getResponse(WEATHER_ADDRESS).get("Temperature"));
-		}*/
-		if ((XBeeProtocol)data.get("protocol") == weather){
+		if ((Class)data.get("class") == SparkfunWeatherboard.class){
 			ilog("Weather data from "+Integer.toHexString(((int[])data.get("address"))[1]));
 			ilog("Temperature: "+data.get("Temperature"));
 			ilog("Humidity: "+data.get("Humidity"));
 			ilog("Dewpoint: "+data.get("Dewpoint"));
 			ilog("Pressure: "+data.get("Pressure"));
 			ilog("Light: "+data.get("Light"));
-		} else if ((XBeeProtocol)data.get("protocol") == range){
+		} else if ((Class)data.get("class") == MaxbotixRangefinder.class){
 			String range = (String) data.get("Range");
 			ilog("Range from "+Integer.toHexString(((int[])data.get("address"))[1])
 					+": "+range);
-		} else if ((XBeeProtocol)data.get("protocol") == motion){
+		} else if ((Class)data.get("class") == PIRMotion.class){
 			ilog("Motion detected from "+Integer.toHexString(((int[])data.get("address"))[1]));
 		} else {
 			ilog("Unknown data: "+Arrays.toString((int[])data.get("raw")));
@@ -66,16 +61,16 @@ public class RemoteMonDemoAPIApplication implements ManagedRunnable, XBeeCallbac
 		xbc = (XBeeController) services.get(XBeeController.class.getName());			
 		ls = (LogService) services.get(LogService.class.getName());
 		ilog("start");
-		weather = new SparkfunWeatherboard(WEATHER_ADDRESS, xbc);
-		range = new MaxbotixRangefinder(RANGE_ADDRESS, xbc);
-		motion = new PIRMotion(MOTION_ADDRESS , xbc);
+		xbc.addPredictive(SparkfunWeatherboard.class);
+		xbc.addPredictive(MaxbotixRangefinder.class);
+		xbc.addPredictive(PIRMotion.class);
 	}
 
 	@Override
 	public void shutdown() {
-		xbc.removeListener(WEATHER_ADDRESS);
-		xbc.removeListener(RANGE_ADDRESS);
-		xbc.removeListener(MOTION_ADDRESS);
+		xbc.removeAll(SparkfunWeatherboard.class);
+		xbc.removeAll(MaxbotixRangefinder.class);
+		xbc.removeAll(PIRMotion.class);
 		ilog("Stop");
 	}
 	

@@ -17,6 +17,8 @@ import com.rapplogic.xbee.api.wpan.TxRequestBase;
 import com.rapplogic.xbee.util.ByteUtils;
 
 public class SerialDevice extends BaseXBeeProtocol {
+	public SerialDevice(){
+	}
 
 	public SerialDevice(int[] address, XBeeController con) {
 		super(address, con);

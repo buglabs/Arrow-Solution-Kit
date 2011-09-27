@@ -12,6 +12,9 @@ import com.rapplogic.xbee.api.XBeeResponse;
 import com.rapplogic.xbee.api.wpan.RxResponseIoSample;
 
 public class PIRMotion extends BaseXBeeProtocol {
+	public PIRMotion(){
+	}
+	
 	public PIRMotion(int[] address, XBeeController con) {
 		super(address, con);
 	}
