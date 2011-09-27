@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bug-Bundle-Type: Application
+Bundle-Vendor: vish
+Bundle-Version: 1.0.0
+BUG-API-Version: 2.0.2
+Bundle-Name: MediaWSDemo
+Bundle-Activator: mediawsdemo.Activator
+Bundle-ManifestVersion: 2
+Bundle-Description: Creates a MediaPlayer webservice to control select
+ ion of video being displayed out BUGview or BUGvideo
+Import-Package: com.buglabs.application,com.buglabs.bug.module.video.p
+ ub,com.buglabs.device,com.buglabs.services.ws,com.buglabs.util,org.os
+ gi.framework,org.osgi.service.log,org.osgi.util.tracker
+Bundle-SymbolicName: MediaWSDemo
+
