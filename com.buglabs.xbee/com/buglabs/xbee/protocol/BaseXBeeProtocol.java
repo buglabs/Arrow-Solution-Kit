@@ -12,6 +12,9 @@ public class BaseXBeeProtocol implements XBeeProtocol {
 	protected Map<String, Object> last = null;
 	protected XBeeAddress addr;
 	protected XBeeController con;
+	
+	public BaseXBeeProtocol(){
+	}
 
 	public BaseXBeeProtocol(int[] address, XBeeController controller){
 		if (address.length > 2)
@@ -48,6 +51,11 @@ public class BaseXBeeProtocol implements XBeeProtocol {
 	@Override
 	public boolean parseable(XBeeResponse res) {
 		return false;
+	}
+
+	@Override
+	public void setAddr(XBeeAddress address) {
+		addr = address;
 	}
 
 }
