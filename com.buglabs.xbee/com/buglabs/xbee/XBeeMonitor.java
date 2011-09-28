@@ -42,7 +42,7 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 	private Thread t;
 	private LogService ls;
 	private boolean running = true;
-	private String devnode = "/dev/ttyUSB0";
+	private String devnode = "/dev/ttyXbee0";
 	private int baud = 9600;
 	private Map<XBeeAddress, XBeeProtocol> protocols;
 	private Set<Class> expectedProtocols;

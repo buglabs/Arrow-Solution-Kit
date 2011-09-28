@@ -3,18 +3,14 @@ package remotemondemoapi;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.osgi.service.log.LogService;
+
+import com.buglabs.application.ServiceTrackerHelper.ManagedRunnable;
 import com.buglabs.xbee.XBeeCallback;
 import com.buglabs.xbee.XBeeController;
 import com.buglabs.xbee.protocol.MaxbotixRangefinder;
 import com.buglabs.xbee.protocol.PIRMotion;
-import com.buglabs.xbee.protocol.SerialDevice;
 import com.buglabs.xbee.protocol.SparkfunWeatherboard;
-import com.buglabs.xbee.protocol.XBeeProtocol;
-
-import org.osgi.framework.BundleContext;
-import org.osgi.service.log.LogService;
-
-import com.buglabs.application.ServiceTrackerHelper.ManagedRunnable;
 /**
  * This class represents the running application when all service dependencies are fulfilled.
  * 
@@ -26,30 +22,23 @@ import com.buglabs.application.ServiceTrackerHelper.ManagedRunnable;
  * finer grained service binding logic, see ServiceTrackerHelper.openServiceTracker(BundleContext context, String[] services, Filter filter, ServiceTrackerCustomizer customizer)
  */
 public class RemoteMonDemoAPIApplication implements ManagedRunnable, XBeeCallback {
-	final int[] WEATHER_ADDRESS = {0x00, 0x03};
-	final int[] MOTION_ADDRESS = {0x00, 0x02};
-	final int[] RANGE_ADDRESS = {0x00, 0x01};
-	
 	private XBeeController xbc;
 	private LogService ls;
-	private SparkfunWeatherboard weather;
-	private MaxbotixRangefinder range;
-	private PIRMotion motion;
 	
 	@Override
 	public void dataRecieved(Map<String, Object> data) {
-		if ((Class)data.get("class") == SparkfunWeatherboard.class){
+		if ((Class<?>)data.get("class") == SparkfunWeatherboard.class){
 			ilog("Weather data from "+Integer.toHexString(((int[])data.get("address"))[1]));
 			ilog("Temperature: "+data.get("Temperature"));
 			ilog("Humidity: "+data.get("Humidity"));
 			ilog("Dewpoint: "+data.get("Dewpoint"));
 			ilog("Pressure: "+data.get("Pressure"));
 			ilog("Light: "+data.get("Light"));
-		} else if ((Class)data.get("class") == MaxbotixRangefinder.class){
+		} else if ((Class<?>)data.get("class") == MaxbotixRangefinder.class){
 			String range = (String) data.get("Range");
 			ilog("Range from "+Integer.toHexString(((int[])data.get("address"))[1])
 					+": "+range);
-		} else if ((Class)data.get("class") == PIRMotion.class){
+		} else if ((Class<?>)data.get("class") == PIRMotion.class){
 			ilog("Motion detected from "+Integer.toHexString(((int[])data.get("address"))[1]));
 		} else {
 			ilog("Unknown data: "+Arrays.toString((int[])data.get("raw")));
@@ -74,6 +63,6 @@ public class RemoteMonDemoAPIApplication implements ManagedRunnable, XBeeCallbac
 		ilog("Stop");
 	}
 	
-	void ilog(String message){  ls.log(ls.LOG_INFO, "["+this.getClass().getSimpleName()+"] "+message);	}
+	void ilog(String message){  ls.log(LogService.LOG_INFO, "["+this.getClass().getSimpleName()+"] "+message);	}
 
 }
