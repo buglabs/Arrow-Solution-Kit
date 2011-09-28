@@ -219,10 +219,9 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 	
 	@Override
 	public void removeAll(Class proto) {
-		dlog("removing "+proto.getName()+" from list...");
 		boolean success = expectedProtocols.remove(proto);
-		dlog("..."+success);
-		for (Map.Entry<XBeeAddress, XBeeProtocol> entry : protocols.entrySet()){
+		Map<XBeeAddress, XBeeProtocol> copyOfProtocols = new HashMap<XBeeAddress, XBeeProtocol>(protocols);
+		for (Map.Entry<XBeeAddress, XBeeProtocol> entry : copyOfProtocols.entrySet()){
 			if (entry.getValue().getClass() == proto){
 				dlog("removing protocol at "+ByteUtils.toBase16(entry.getKey().getAddress()));
 				protocols.remove(entry.getKey());
