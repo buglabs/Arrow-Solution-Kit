@@ -17,6 +17,8 @@ import com.rapplogic.xbee.api.wpan.TxRequestBase;
 import com.rapplogic.xbee.util.ByteUtils;
 
 public class SerialDevice extends BaseXBeeProtocol {
+	public SerialDevice(){
+	}
 
 	public SerialDevice(int[] address, XBeeController con) {
 		super(address, con);
@@ -52,6 +54,13 @@ public class SerialDevice extends BaseXBeeProtocol {
 		try {
 			con.getXBee().sendAsynchronous(request);
 		} catch (XBeeException e) {}
+	}
+	
+	@Override
+	public boolean parseable(XBeeResponse res){
+		if (!((res.getApiId() == ApiId.RX_16_RESPONSE)||(res.getApiId() == ApiId.RX_64_RESPONSE)))
+			return false;
+		return true;
 	}
 
 }

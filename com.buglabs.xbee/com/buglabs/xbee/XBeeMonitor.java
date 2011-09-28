@@ -1,7 +1,9 @@
 package com.buglabs.xbee;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +14,7 @@ import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.ServiceTracker;
 
 import com.buglabs.application.ServiceTrackerHelper.ManagedRunnable;
+import com.buglabs.xbee.protocol.BaseXBeeProtocol;
 import com.buglabs.xbee.protocol.XBeeProtocol;
 import com.rapplogic.xbee.api.ApiId;
 import com.rapplogic.xbee.api.AtCommand;
@@ -39,9 +42,10 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 	private Thread t;
 	private LogService ls;
 	private boolean running = true;
-	private String devnode = "/dev/ttyUSB0";
+	private String devnode = "/dev/ttyXbee0";
 	private int baud = 9600;
 	private Map<XBeeAddress, XBeeProtocol> protocols;
+	private Set<Class> expectedProtocols;
 	private BundleContext _context;
 	private ServiceTracker tracker;
 	
@@ -57,6 +61,41 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 		Map<String,Object> ret = parseResponse(res);
 		if (ret != null)
 			whiteboardNotify(ret);
+	}
+	
+	private Map<String,Object> predictiveParse(XBeeResponse res){
+		Map<String,Object> ret = null;
+		if (res.getApiId() == ApiId.AT_RESPONSE)
+			return null;
+		boolean found = false;
+		for (int i=0;i<VALID_APIID.length;i++)
+			if (res.getApiId() == VALID_APIID[i])
+				found = true;
+		if (!found){
+			return null;
+		}
+		RxBaseResponse pkt = (RxBaseResponse)res;
+		for (Class proto:expectedProtocols){
+			XBeeProtocol candidate = null;
+			try {
+				candidate = (XBeeProtocol) proto.newInstance();
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if (candidate == null){
+				continue;
+			}
+			if (candidate.parseable(res)){
+				candidate.setAddr(pkt.getSourceAddress());
+				addListener(candidate);
+				return candidate.parse(res);
+			}
+		}
+		return null;
 	}
 	
 	private Map<String,Object> parseResponse(XBeeResponse res){
@@ -83,6 +122,7 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 			//so we shouldn't report unparseable data.	
 			if (ret != null){
 				ret.put("protocol", protocols.get(pkt.getSourceAddress()));
+				ret.put("class", protocols.get(pkt.getSourceAddress()).getClass());
 				ret.put("address", pkt.getSourceAddress().getAddress());
 			} 	
 			return ret;
@@ -90,9 +130,16 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 		//Send the raw (but still unescaped) packet bytes.
 		} else {
 			if (tracker.size() > 0){
-				ret = new HashMap<String,Object>();
-				ret.put("raw", pkt.getProcessedPacketBytes());
-				ret.put("address", pkt.getSourceAddress().getAddress());
+				//If we have listeners, try to guess the protocol for them.
+				dlog("Attempting to guess the protocol...");
+				ret = predictiveParse(res);
+				if (ret != null){
+					dlog("prediction success: "+protocols.get(pkt.getSourceAddress()).getClass().getName());
+					ret.put("protocol", protocols.get(pkt.getSourceAddress()));
+					ret.put("class", protocols.get(pkt.getSourceAddress()).getClass());
+					ret.put("address", pkt.getSourceAddress().getAddress());
+				}
+				return ret;
 			} else {
 				dlog("data(no consumers):"+ByteUtils.toString(pkt.getProcessedPacketBytes()));
 			}
@@ -166,10 +213,28 @@ public class XBeeMonitor implements ManagedRunnable, Runnable, PacketListener, X
 	}
 	
 	@Override
+	public void addPredictive(Class proto) {
+		expectedProtocols.add(proto);
+	}
+	
+	@Override
+	public void removeAll(Class proto) {
+		boolean success = expectedProtocols.remove(proto);
+		Map<XBeeAddress, XBeeProtocol> copyOfProtocols = new HashMap<XBeeAddress, XBeeProtocol>(protocols);
+		for (Map.Entry<XBeeAddress, XBeeProtocol> entry : copyOfProtocols.entrySet()){
+			if (entry.getValue().getClass() == proto){
+				dlog("removing protocol at "+ByteUtils.toBase16(entry.getKey().getAddress()));
+				protocols.remove(entry.getKey());
+			}
+		}
+	}
+	
+	@Override
 	public void run(Map<Object, Object> services) {
 		// TODO Auto-generated method stub
 		ls = (LogService) services.get(LogService.class.getName());
 		protocols = new HashMap<XBeeAddress, XBeeProtocol>();
+		expectedProtocols = new HashSet<Class>();
 		t = new Thread(this, "XBee Monitor");
 		t.start();
 		_context.registerService(XBeeController.class.getName(), this, null);

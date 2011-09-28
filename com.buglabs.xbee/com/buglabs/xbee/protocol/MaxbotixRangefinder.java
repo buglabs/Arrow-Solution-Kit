@@ -13,6 +13,8 @@ import com.rapplogic.xbee.api.wpan.RxResponse;
 import com.rapplogic.xbee.util.ByteUtils;
 
 public class MaxbotixRangefinder extends BaseXBeeProtocol {
+	public MaxbotixRangefinder(){
+	}
 
 	public MaxbotixRangefinder(int[] address, XBeeController con) {
 		super(address, con);
@@ -42,6 +44,19 @@ public class MaxbotixRangefinder extends BaseXBeeProtocol {
 		String ret = "range("+Integer.toHexString(((int[])data.get("address"))[1])
 					+"): "+data.get("Range");
 		return ret;
+	}
+	
+	@Override
+	public boolean parseable(XBeeResponse res){
+		if (res.getApiId() != ApiId.RX_16_RESPONSE)
+			return false;
+		RxResponse pkt = (RxResponse) res;
+		String data = ByteUtils.toString(pkt.getData());
+		data = data.replaceAll("\n", "");
+		data = data.replaceAll("\r", "");
+		if ((data.charAt(0) == 'R')&&(data.length() == 4))
+			return true;
+		return false;
 	}
 
 }
