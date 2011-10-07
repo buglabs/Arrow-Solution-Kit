@@ -1,6 +1,10 @@
 Arrow Solution Kit:
 This reposistory should eventually house all of the code relating to the Arrow solution kits.
 
+Digital Signage:
+The following bundles are used:
+-MediaWSDemo: list and play media files, JMplayer controls playback settings
+
 Remote Monitoring:
 The following bundles are used by remote monitoring:
 -xbee-api: the JNI-ified and ECLIPSE-ified XBeeAPI
