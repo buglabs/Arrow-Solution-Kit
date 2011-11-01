@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bug-Bundle-Type: Application
+Bundle-Vendor: John Connolly
+Bundle-Version: 1.0.0
+BUG-API-Version: 2.0.2
+Bundle-Name: ArrowTelematicsSolution
+Bundle-Activator: arrowtelematicssolution.Activator
+Bundle-ManifestVersion: 2
+Bundle-Description: Simple demonstration application displaying the LC
+ D acceleration and GPS lat/lon (when available) on the LCD.
+Import-Package: org.osgi.framework,com.buglabs.bug.module.gps.pub,com.
+ buglabs.bug.module.lcd.pub,org.osgi.util.tracker,org.osgi.service.log
+ ,com.buglabs.application,com.buglabs.util,javax.swing,com.buglabs.bug
+ .accelerometer.pub
+Bundle-SymbolicName: ArrowTelematicsSolution
+
