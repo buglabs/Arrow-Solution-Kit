@@ -31,15 +31,17 @@ public class Activator implements BundleActivator {
 	};	
 	private ServiceTracker serviceTracker;
 	private ServiceRegistration callbackService;
+	private RemoteMonDemoAPIApplication mon;
 	/*
 	 * (non-Javadoc)
 	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
 	 */
 	public void start(BundleContext context) throws Exception {
 		//Begin tracking services, and when all services are available, create thread and call ManagedRunnable.run().
-		RemoteMonDemoAPIApplication mon = new RemoteMonDemoAPIApplication();
+		mon = new RemoteMonDemoAPIApplication();
 		serviceTracker = ServiceTrackerHelper.openServiceTracker(context, services, mon);
 		callbackService = context.registerService(XBeeCallback.class.getName(), mon, null);
+		mon.setBundlecontext(context);
 	}
 
     /*

@@ -13,5 +13,7 @@ Import-Package: com.buglabs.application,
  com.buglabs.xbee.protocol,
  org.osgi.framework,
  org.osgi.service.log,
- org.osgi.util.tracker
+ org.osgi.util.tracker,
+ javax.swing,
+ javax.swing.border
 BUG-API-Version: 2.0.2

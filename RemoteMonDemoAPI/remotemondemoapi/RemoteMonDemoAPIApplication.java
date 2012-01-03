@@ -1,8 +1,11 @@
 package remotemondemoapi;
 
+import gui.SensordataView;
+
 import java.util.Arrays;
 import java.util.Map;
 
+import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.application.ServiceTrackerHelper.ManagedRunnable;
@@ -24,9 +27,12 @@ import com.buglabs.xbee.protocol.SparkfunWeatherboard;
 public class RemoteMonDemoAPIApplication implements ManagedRunnable, XBeeCallback {
 	private XBeeController xbc;
 	private LogService ls;
+	private SensordataView SensorView;
+	private BundleContext context;
 	
 	@Override
 	public void dataRecieved(Map<String, Object> data) {
+		SensorView.update(data);
 		if ((Class<?>)data.get("class") == SparkfunWeatherboard.class){
 			ilog("Weather data from "+Integer.toHexString(((int[])data.get("address"))[1]));
 			ilog("Temperature: "+data.get("Temperature"));
@@ -34,6 +40,7 @@ public class RemoteMonDemoAPIApplication implements ManagedRunnable, XBeeCallbac
 			ilog("Dewpoint: "+data.get("Dewpoint"));
 			ilog("Pressure: "+data.get("Pressure"));
 			ilog("Light: "+data.get("Light"));
+			
 		} else if ((Class<?>)data.get("class") == MaxbotixRangefinder.class){
 			String range = (String) data.get("Range");
 			ilog("Range from "+Integer.toHexString(((int[])data.get("address"))[1])
@@ -53,6 +60,7 @@ public class RemoteMonDemoAPIApplication implements ManagedRunnable, XBeeCallbac
 		xbc.addPredictive(SparkfunWeatherboard.class);
 		xbc.addPredictive(MaxbotixRangefinder.class);
 		xbc.addPredictive(PIRMotion.class);
+		SensorView = new SensordataView("Remote Sensor Monitor",this);
 	}
 
 	@Override
@@ -64,5 +72,13 @@ public class RemoteMonDemoAPIApplication implements ManagedRunnable, XBeeCallbac
 	}
 	
 	void ilog(String message){  ls.log(LogService.LOG_INFO, "["+this.getClass().getSimpleName()+"] "+message);	}
+	
+	public void setBundlecontext(BundleContext context) {
+		this.context = context;
+	}
+
+	public BundleContext getBundleContext() {
+		return context;
+	}
 
 }
