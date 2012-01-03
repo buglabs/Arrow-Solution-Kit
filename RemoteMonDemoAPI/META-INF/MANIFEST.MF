@@ -8,12 +8,15 @@ Bundle-Vendor: theterg
 Bundle-Description: The Remote Monitoring demo - using com.buglabs.xbee
 Bug-Bundle-Type: Application
 Import-Package: com.buglabs.application,
+ com.buglabs.bug.swarm.client,
  com.buglabs.util,
  com.buglabs.xbee,
  com.buglabs.xbee.protocol,
+ javax.swing,
+ javax.swing.border,
+ org.codehaus.jackson;version="1.9.2",
+ org.codehaus.jackson.map;version="1.9.2",
  org.osgi.framework,
  org.osgi.service.log,
- org.osgi.util.tracker,
- javax.swing,
- javax.swing.border
+ org.osgi.util.tracker
 BUG-API-Version: 2.0.2
