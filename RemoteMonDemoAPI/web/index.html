@@ -3,6 +3,7 @@
         <meta name="viewport" content="minimum-scale=1.0, maximum-scale=1.0, width=device-width" />
         <script type="text/javascript" src="http://cdn.buglabs.net/swarm/swarm-v0.3.2.min.js"></script>
         <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+        <script type="text/javascript" src="http://flot.googlecode.com/svn/trunk/jquery.flot.js"></script>
         <link href='http://fonts.googleapis.com/css?family=Armata' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="css/shared.css" type="test/css">
     </head>
@@ -30,21 +31,23 @@
         </div> <!-- end of header div -->
         <div id="content" class=center>
         <h1>Remote Monitoring Solution Kit</h1>
-        <div id=weather>
-           Temperature: <span id=temperature>-</span><br />
-           Humidity: <span id=humidity>-</span><br />
-           Dew Point: <span id=dewpoint>-</span><br />
-           Pressure: <span id=pressure>-</span><br />
-           Light Level: <span id=light>-</span><br />
-           <br />
-        </div>
+        <div id=weather><table id=weather>
+            <tr><th>Parameter</th><th>Current Value</th><th>Add to Graph</th></tr>
+            <tr><td class=data>Temperature: </td><td><span id=temperature>-</span></td><td><input id=graphselect type=checkbox name=graph value=temp /></td></tr>
+            <tr><td class=data>Humidity: </td><td><span id=humidity>-</span></td><td><input id=graphselect type=checkbox name=graph value=humidity /></td></tr>
+            <tr><td class=data>Dew Point: </td><td><span id=dewpoint>-</span></td><td><input id=graphselect type=checkbox name=graph value=dewpoint /></td></tr>
+            <tr><td class=data>Pressure: </td><td><span id=pressure>-</span></td><td><input id=graphselect type=checkbox name=graph value=pressure /></td></tr>
+            <tr><td class=data>Light Level: </td><td><span id=light>-</span></td><td><input id=graphselect type=checkbox name=graph value=light /></td></tr>
+        </table></div><br />
+        <div id=weatherplot class=active></div><br /><br />
         <div id=range>
            Current range: <span id=range>-</span><br />
+           <div id=rangeplot></div><br /><br />
            <br /> 
         </div>
         <div id=motion>
            Motion Log: <br />
-           <div id=motionlog></div>
+           <div id=motionlog></div><br />
         </div>
         </div>
     </body>

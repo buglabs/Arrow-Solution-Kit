@@ -110,6 +110,27 @@ ul#logos li {
 div#motionlog{
     height: 40%;
     overflow: scroll;
+    display: none;
+}
+div#rangeplot{
+   display: inline-block;
+   text-align:center;
+   width: 700px;
+   height: 300px;
+}
+div#weatherplot{
+   display: inline-block;
+   text-align:center;
+   width: 700px;
+   height: 300px;
+}
+
+table#weather{
+   display: inline-block;
+   text-align:center;
+}
+th{
+   padding: 5px 20px;
 }
 
 @media only screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait) {
